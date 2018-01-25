@@ -1,20 +1,142 @@
-<!--The content below is only a placeholder and can be replaced.-->
-<div style="text-align:center">
-  <h1>
-    Welcome to {{ title }}!
-  </h1>
-  <img width="300" alt="Angular Logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTAgMjUwIj4KICAgIDxwYXRoIGZpbGw9IiNERDAwMzEiIGQ9Ik0xMjUgMzBMMzEuOSA2My4ybDE0LjIgMTIzLjFMMTI1IDIzMGw3OC45LTQzLjcgMTQuMi0xMjMuMXoiIC8+CiAgICA8cGF0aCBmaWxsPSIjQzMwMDJGIiBkPSJNMTI1IDMwdjIyLjItLjFWMjMwbDc4LjktNDMuNyAxNC4yLTEyMy4xTDEyNSAzMHoiIC8+CiAgICA8cGF0aCAgZmlsbD0iI0ZGRkZGRiIgZD0iTTEyNSA1Mi4xTDY2LjggMTgyLjZoMjEuN2wxMS43LTI5LjJoNDkuNGwxMS43IDI5LjJIMTgzTDEyNSA1Mi4xem0xNyA4My4zaC0zNGwxNy00MC45IDE3IDQwLjl6IiAvPgogIDwvc3ZnPg==">
-</div>
-<h2>Here are some links to help you start: </h2>
-<ul>
-  <li>
-    <h2><a target="_blank" rel="noopener" href="https://angular.io/tutorial">Tour of Heroes</a></h2>
-  </li>
-  <li>
-    <h2><a target="_blank" rel="noopener" href="https://github.com/angular/angular-cli/wiki">CLI Documentation</a></h2>
-  </li>
-  <li>
-    <h2><a target="_blank" rel="noopener" href="https://blog.angular.io/">Angular blog</a></h2>
-  </li>
-</ul>
+<div class="container mt-3">
+  <div class="row">
+    <div class="col-12 mb-3">
+      <h1 class="text-center">Todos
+        <div class="badge badge-pill badge-info">{{todos.length}} </div>
+      </h1>
+    </div>
 
+    <!-- <div class="alert alert-success"> succesfully created new Todo! </div> -->
+
+    <div class="col-12"
+         *ngIf="!todos.length">
+      <div class="alert alert-info">No todos found !</div>
+    </div>
+
+    <div *ngIf="todos.length"
+         class="col-12">
+
+      <div class="form-group row">
+        <div class="col-12">
+          <input class="form-control"
+                 type="search"
+                 (keyup)="searchForTodo($event)"
+                 placeholder="Search for Todo by title or description"
+                 id="example-search-input">
+        </div>
+      </div>
+
+      <div *ngFor="let todo of todosFiltered"
+           class="card mb-3">
+        <h5 class="card-header">
+          <span class="mr-3">
+            <a (click)="todo.done = !todo.done">
+              <i *ngIf="todo.done"
+                 class="fa fa-check-square-o"
+                 aria-hidden="true"></i>
+              <i *ngIf="!todo.done"
+                 class="fa fa-square-o"
+                 aria-hidden="true"></i>
+            </a>
+          </span>
+          {{todo.title}}
+
+          <span *ngIf="todo.urgent"
+                class="badge badge-danger">Urgent</span>
+          <span *ngIf="!todo.done"
+                class="btn btn-info btn-sm float-right">Edit</span>
+        </h5>
+
+        <div class="card-body">
+          <p class="card-text">{{todo.description}}</p>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="col-12 text-right">
+      <!-- Button trigger modal -->
+      <button type="button"
+              class="btn btn-success"
+              data-toggle="modal"
+              data-target="#createNewTodoModal">
+        Create new Todo
+      </button>
+
+      <!-- <div class="btn btn-success"></div> -->
+
+    </div>
+  </div>
+</div>
+
+<!-- createNewTodoModal -->
+<div class="modal fade"
+     id="createNewTodoModal"
+     tabindex="-1"
+     role="dialog"
+     aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog"
+       role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"
+            id="exampleModalLabel">create a new Todo </h5>
+        <button type="button"
+                class="close"
+                data-dismiss="modal"
+                aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+          <div class="row">
+            <form class="col-12" (ngSubmit)="onSubmit()">
+              <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                  <span class="input-group-text"
+                        id="basic-addon1">insert title</span>
+                </div>
+                <input type="text"
+                       class="form-control"
+                       placeholder="ride a horse"
+                       aria-label="Title"
+                       aria-describedby="basic-addon1">
+              </div>
+
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text">insert description</span>
+                </div>
+                <textarea class="form-control"
+                          placeholder="go to a riding school and sign up"
+                          aria-label="Description"></textarea>
+              </div>
+
+              <div class="alert alert-info mt-3">
+                Is this an urgent Task?
+                <!-- <a (click)="todo.done = !todo.done">
+                      <i *ngIf="todo.done"
+                         class="fa fa-check-square-o"
+                         aria-hidden="true"></i>
+                      <i *ngIf="!todo.done"
+                         class="fa fa-square-o"
+                         aria-hidden="true"></i>
+                    </a> -->
+              </div>
+
+              <button type="button"
+                      class="btn btn-secondary"
+                      data-dismiss="modal">Close</button>
+              <button type="submit"
+                      class="btn btn-warning float-right"> Create Todo</button>
+            </form>
+
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
