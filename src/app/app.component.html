@@ -92,14 +92,17 @@
       <div class="modal-body">
         <div class="container-fluid">
           <div class="row">
-            <form class="col-12" (ngSubmit)="onSubmit()">
-              <div class="input-group mb-3">
+            <form class="col-12">
+              <div class="input-group mb-3"
+                   *ngIf="newTodo">
                 <div class="input-group-prepend">
                   <span class="input-group-text"
-                        id="basic-addon1">insert title</span>
+                        id="basic-addon1">title*</span>
                 </div>
                 <input type="text"
                        class="form-control"
+                       [(ngModel)]="newTodo.title"
+                       name="title"
                        placeholder="ride a horse"
                        aria-label="Title"
                        aria-describedby="basic-addon1">
@@ -107,30 +110,34 @@
 
               <div class="input-group">
                 <div class="input-group-prepend">
-                  <span class="input-group-text">insert description</span>
+                  <span class="input-group-text">description*</span>
                 </div>
                 <textarea class="form-control"
+                          [(ngModel)]="newTodo.description"
+                          name="description"
                           placeholder="go to a riding school and sign up"
                           aria-label="Description"></textarea>
               </div>
 
               <div class="alert alert-info mt-3">
                 Is this an urgent Task?
-                <!-- <a (click)="todo.done = !todo.done">
-                      <i *ngIf="todo.done"
-                         class="fa fa-check-square-o"
-                         aria-hidden="true"></i>
-                      <i *ngIf="!todo.done"
-                         class="fa fa-square-o"
-                         aria-hidden="true"></i>
-                    </a> -->
+                <a (click)="newTodo.urgent = !newTodo.urgent">
+                  <i *ngIf="newTodo.urgent"
+                     class="fa fa-check-square-o"
+                     aria-hidden="true"></i>
+                  <i *ngIf="!newTodo.urgent"
+                     class="fa fa-square-o"
+                     aria-hidden="true"></i>
+                </a>
               </div>
 
               <button type="button"
                       class="btn btn-secondary"
                       data-dismiss="modal">Close</button>
               <button type="submit"
-                      class="btn btn-warning float-right"> Create Todo</button>
+                      (click)="createNewTodo()"
+                      data-dismiss="modal"
+                      class="btn btn-warning float-right"> Create</button>
             </form>
 
 

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { OnInit } from '@angular/core/src/metadata/lifecycle_hooks';
+import { OnInit, SimpleChanges } from '@angular/core/src/metadata/lifecycle_hooks';
 
 @Component({
   selector: 'app-root',
@@ -8,14 +8,12 @@ import { OnInit } from '@angular/core/src/metadata/lifecycle_hooks';
 })
 export class AppComponent implements OnInit {
 
-  // save stuff to local storage
-
-  // public newTodo: {
-  //   title: 'asdf',
-  //   description: 'asdf',
-  //   urgent: null,
-  //   done: null
-  // };
+  public newTodo: any = {
+    title: '',
+    description: '',
+    urgent: null,
+    done: null
+  };
 
   public todosFiltered: any;
 
@@ -35,8 +33,18 @@ export class AppComponent implements OnInit {
   ];
 
   public ngOnInit() {
-    this.todosFiltered = this.todos;
+    this.todosFiltered = localStorage.getItem('todos');
+    // this.todosFiltered = this.todos;
   }
+
+  public createNewTodo() {
+    if (this.newTodo.title && this.newTodo.description) {
+      this.todos.push(this.newTodo);
+      this.todosFiltered = this.todos;
+      localStorage.setItem('todos', JSON.stringify(this.todos));
+    }
+  }
+
 
   public searchForTodo(event) {
     if (event.target.value === '' || event.target.value !== '' && event.keyCode === 13) {
