@@ -8,45 +8,69 @@ import { OnInit, SimpleChanges } from '@angular/core/src/metadata/lifecycle_hook
 })
 export class AppComponent implements OnInit {
 
-  public newTodo: any = {
+  public displayMessage: boolean = false;
+  public messageText: string = '';
+
+  private timeout: number = 5000;
+
+  public todos: Array<Todo> = [];
+  public todosFiltered: Array<Todo>;
+
+  public activeTodo: Todo = {
+    id: -1,
     title: '',
     description: '',
     urgent: null,
-    done: null
+    done: null,
+    category: ''
   };
 
-  public todosFiltered: any;
+  public categories: any = ['Household', 'Work', 'Pets'];
 
-  public todos: Array<any> = [
+
+  public defaultTodos: Array<Todo> = [
     {
+      id: 1,
       title: 'clean katzenkisterl',
       description: 'do it every second day, bag is outside the window',
       urgent: true,
-      done: false
+      done: false,
+      category: 'Pets'
     },
     {
+      id: 2,
       title: 'hang up clothes',
       description: 'take clothes out of washing machine, hang them up in the bedroom',
       urgent: false,
-      done: false
+      done: false,
+      category: 'Household'
     }
   ];
 
-  public ngOnInit() {
-    this.todosFiltered = localStorage.getItem('todos');
-    // this.todosFiltered = this.todos;
-  }
 
-  public createNewTodo() {
-    if (this.newTodo.title && this.newTodo.description) {
-      this.todos.push(this.newTodo);
-      this.todosFiltered = this.todos;
-      localStorage.setItem('todos', JSON.stringify(this.todos));
+  public ngOnInit(): void {
+    this.todosFiltered = this.todos = JSON.parse(localStorage.getItem('todos')) || JSON.parse(localStorage.getItem('todosNoCompleted'));
+    if (!this.todos) {
+      this.todosFiltered = this.todos = this.defaultTodos;
     }
   }
 
+  public createNewTodo(): void {
+    if (this.activeTodo.title && this.activeTodo.description) {
+      this.activeTodo.id = this.todosFiltered.length + 1;
+      this.todos.push(this.activeTodo);
+      localStorage.setItem('todos', JSON.stringify(this.todos));
+      this.todosFiltered = this.todos = JSON.parse(localStorage.getItem('todos'));
 
-  public searchForTodo(event) {
+      this.displayMessage = true;
+      this.messageText = 'successfully created new Todo!';
+      setTimeout(() => {
+        this.displayMessage = false;
+      }, this.timeout);
+    }
+  }
+
+  public searchForTodo(event): string | void {
     if (event.target.value === '' || event.target.value !== '' && event.keyCode === 13) {
       this.todosFiltered = this.todos.filter(elem => {
         return (elem.title).includes(event.target.value) || (elem.description).includes(event.target.value);
@@ -54,10 +78,44 @@ export class AppComponent implements OnInit {
     }
   }
 
-  public onSubmit() {
-    console.log('triggered');
-    // if (this.myform.valid) {
-    //   console.log("Form Submitted!");
-    // }
+  public saveActiveTodo(activeTodo): void {
+    this.todosFiltered.find((elem: Todo): any => {
+      if (elem.id === activeTodo.id) {
+        elem = activeTodo;
+        localStorage.clear();
+        localStorage.setItem('todosNoCompleted', JSON.stringify(this.todosFiltered));
+      }
+    });
   }
+
+  public deleteCompletedTodos() {
+    this.todosFiltered = this.todos.filter(elem => !elem.done);
+    localStorage.clear();
+    if (this.todosFiltered.length) {
+      localStorage.setItem('todosNoCompleted', JSON.stringify(this.todosFiltered));
+    }
+  }
+
+  public deleteSingleTodo(todo, index) {
+    this.todosFiltered = this.todosFiltered.filter(elem => todo.id !== elem.id);
+    localStorage.clear();
+    if (this.todosFiltered.length) {
+      localStorage.setItem('todosNoCompleted', JSON.stringify(this.todosFiltered));
+    }
+    this.messageText = `successfully deleted todo: '${todo.title}'!`;
+    this.displayMessage = true;
+    setTimeout(() => {
+      this.displayMessage = false;
+    }, this.timeout);
+  }
+
+}
+
+interface Todo {
+  id: number;
+  title: string;
+  description: string;
+  urgent: boolean;
+  done: boolean;
+  category: string;
 }

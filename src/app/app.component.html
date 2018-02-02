@@ -1,69 +1,109 @@
 <div class="container mt-3">
   <div class="row">
     <div class="col-12 mb-3">
-      <h1 class="text-center">Todos
-        <div class="badge badge-pill badge-info">{{todos.length}} </div>
-      </h1>
-    </div>
-
-    <!-- <div class="alert alert-success"> succesfully created new Todo! </div> -->
-
-    <div class="col-12"
-         *ngIf="!todos.length">
-      <div class="alert alert-info">No todos found !</div>
-    </div>
-
-    <div *ngIf="todos.length"
-         class="col-12">
-
-      <div class="form-group row">
-        <div class="col-12">
-          <input class="form-control"
-                 type="search"
-                 (keyup)="searchForTodo($event)"
-                 placeholder="Search for Todo by title or description"
-                 id="example-search-input">
+      <div class="row">
+        <div class="col-6">
+          <h1>Todos
+            <div class="badge badge-pill badge-info">{{todosFiltered?.length || '0'}} </div>
+          </h1>
+        </div>
+        <div class="col-6 text-right">
+          <span *ngIf="todosFiltered?.length > 0">
+            <button type="button"
+                    class="btn btn-danger"
+                    (click)="deleteCompletedTodos()">
+              delete all completed Todos
+            </button>
+          </span>
         </div>
       </div>
+    </div>
 
-      <div *ngFor="let todo of todosFiltered"
+    <div class="col-12"
+         *ngIf="displayMessage">
+      <div class="alert alert-success">
+        {{messageText}}
+      </div>
+    </div>
+
+    <div class="col-12">
+      <div class="form-group">
+        <input class="form-control"
+               type="search"
+               (keyup)="searchForTodo($event)"
+               placeholder="Search for Todo by title or description"
+               id="example-search-input">
+      </div>
+    </div>
+
+    <div class="col-12"
+         *ngIf="!todosFiltered?.length">
+      <div class="alert alert-info"
+           id="noTodos">No todos found !</div>
+    </div>
+
+    <div *ngIf="todosFiltered?.length"
+         class="col-12">
+      <div *ngFor="let todo of todosFiltered; let i = index;"
            class="card mb-3">
         <h5 class="card-header">
-          <span class="mr-3">
-            <a (click)="todo.done = !todo.done">
-              <i *ngIf="todo.done"
-                 class="fa fa-check-square-o"
-                 aria-hidden="true"></i>
-              <i *ngIf="!todo.done"
-                 class="fa fa-square-o"
-                 aria-hidden="true"></i>
-            </a>
-          </span>
-          {{todo.title}}
+          <div class="row">
+            <div class="col-6">
+              <a (click)="todo.done = !todo.done">
+                <span class="mr-3">
+                  <i *ngIf="todo.done"
+                     class="fa fa-check-square-o"
+                     aria-hidden="true"></i>
+                  <i *ngIf="!todo.done"
+                     class="fa fa-square-o"
+                     aria-hidden="true"></i>
+                </span>
+                <span [class.done-todo]="todo.done">{{todo.title}}</span>
+              </a>
 
-          <span *ngIf="todo.urgent"
-                class="badge badge-danger">Urgent</span>
-          <span *ngIf="!todo.done"
-                class="btn btn-info btn-sm float-right">Edit</span>
+              <span *ngIf="todo.urgent && !todo.done"
+                    class="badge badge-danger">Urgent
+              </span>
+              <span *ngIf="todo.category"
+                    class="badge badge-info">{{todo.category}}
+              </span>
+            </div>
+            <div class="col-6 text-right">
+              <span *ngIf="!todo.done"
+                    class="mr-1">
+                <button type="button"
+                        class="btn btn-info btn-sm"
+                        (click)="activeTodo = todo"
+                        data-toggle="modal"
+                        data-target="#editSelectedTodoModal">
+                  Edit Todo
+                </button>
+              </span>
+              <button type="button"
+                      class="btn btn-danger btn-sm"
+                      (click)="deleteSingleTodo(todo, i)">
+                Delete Todo
+              </button>
+            </div>
+          </div>
         </h5>
 
         <div class="card-body">
-          <p class="card-text">{{todo.description}}</p>
+          <p class="card-text"
+             [class.done-todo]="todo.done">{{todo.description}}</p>
         </div>
 
       </div>
     </div>
 
     <div class="col-12 text-right">
-      <!-- Button trigger modal -->
       <button type="button"
+              id="createNewTodoButton"
               class="btn btn-success"
               data-toggle="modal"
               data-target="#createNewTodoModal">
         Create new Todo
       </button>
-
-      <!-- <div class="btn btn-success"></div> -->
 
     </div>
   </div>
@@ -93,15 +133,15 @@
         <div class="container-fluid">
           <div class="row">
             <form class="col-12">
-              <div class="input-group mb-3"
-                   *ngIf="newTodo">
+              <div class="input-group mb-3">
                 <div class="input-group-prepend">
                   <span class="input-group-text"
                         id="basic-addon1">title*</span>
                 </div>
                 <input type="text"
+                       id="title-field"
                        class="form-control"
-                       [(ngModel)]="newTodo.title"
+                       [(ngModel)]="activeTodo.title"
                        name="title"
                        placeholder="ride a horse"
                        aria-label="Title"
@@ -113,7 +153,8 @@
                   <span class="input-group-text">description*</span>
                 </div>
                 <textarea class="form-control"
-                          [(ngModel)]="newTodo.description"
+                          id="description-field"
+                          [(ngModel)]="activeTodo.description"
                           name="description"
                           placeholder="go to a riding school and sign up"
                           aria-label="Description"></textarea>
@@ -121,12 +162,13 @@
 
               <div class="alert alert-info mt-3">
                 Is this an urgent Task?
-                <a (click)="newTodo.urgent = !newTodo.urgent">
-                  <i *ngIf="newTodo.urgent"
+                <a (click)="activeTodo.urgent = !activeTodo.urgent">
+                  <i *ngIf="activeTodo.urgent"
                      class="fa fa-check-square-o"
                      aria-hidden="true"></i>
-                  <i *ngIf="!newTodo.urgent"
+                  <i *ngIf="!activeTodo.urgent"
                      class="fa fa-square-o"
+                     id="urgentTask-field"
                      aria-hidden="true"></i>
                 </a>
               </div>
@@ -143,6 +185,101 @@
 
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- EditSelectedTodoModal -->
+<div class="modal fade"
+     id="editSelectedTodoModal"
+     tabindex="-1"
+     role="dialog"
+     aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog"
+       role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"
+            id="exampleModalLabel">edit Todo: {{activeTodo?.title}} </h5>
+        <button type="button"
+                class="close"
+                data-dismiss="modal"
+                aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+          <div class="row">
+            <form class="col-12">
+              <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                  <span class="input-group-text"
+                        id="basic-addon1">title*</span>
+                </div>
+                <input type="text"
+                       class="form-control"
+                       [(ngModel)]="activeTodo.title"
+                       name="title"
+                       [attr.placeholder]="activeTodo.title"
+                       aria-label="Title"
+                       aria-describedby="basic-addon1">
+              </div>
+
+              <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                  <span class="input-group-text">description*</span>
+                </div>
+                <textarea class="form-control"
+                          [(ngModel)]="activeTodo.description"
+                          name="description"
+                          [attr.placeholder]="activeTodo.description"
+                          aria-label="Description"></textarea>
+              </div>
+
+              <div class="form-group">
+                <label for="exampleFormControlSelect1">Category</label>
+                <select [(ngModel)]="activeTodo.category"
+                        name="category"
+                        class="form-control"
+                        id="exampleFormControlSelect1">
+                  <option>select a category</option>
+                  <option *ngFor="let elem of categories">
+                    {{elem}}
+                  </option>
+                </select>
+              </div>
+
+              <div class="alert alert-info mt-3">
+                Is this an urgent Task?
+                <a (click)="activeTodo.urgent = !activeTodo.urgent">
+                  <i *ngIf="activeTodo.urgent"
+                     class="fa fa-check-square-o"
+                     aria-hidden="true"></i>
+                  <i *ngIf="!activeTodo.urgent"
+                     class="fa fa-square-o"
+                     aria-hidden="true"></i>
+                </a>
+              </div>
+
+
+
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button"
+                class="btn btn-secondary"
+                data-dismiss="modal">Close</button>
+        <button type="submit"
+                (click)="saveActiveTodo(activeTodo)"
+                data-dismiss="modal"
+                class="btn btn-success"> Save Changes</button>
       </div>
     </div>
   </div>
