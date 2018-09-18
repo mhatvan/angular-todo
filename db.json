@@ -1,0 +1,28 @@
+{
+  "todos": [
+    {
+      "id": 1,
+      "title": "clean katzenkisterl",
+      "description": "do it every second day, bag is outside the window",
+      "urgent": true,
+      "done": false,
+      "category": "Household"
+    },
+    {
+      "id": 2,
+      "title": "sdbsbsb",
+      "description": "sdvsdvsvsbs",
+      "urgent": true,
+      "done": false,
+      "category": ""
+    },
+    {
+      "id": 3,
+      "title": "yntn",
+      "description": "rsmrstm",
+      "urgent": true,
+      "done": false,
+      "category": ""
+    }
+  ]
+}

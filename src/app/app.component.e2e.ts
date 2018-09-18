@@ -1,10 +1,8 @@
 import { browser, by, element } from 'protractor';
-
-import { } from 'jasmine';
 import { protractor } from 'protractor/built/ptor';
+import {} from 'jasmine';
 
 describe('AppComponent', () => {
-
   beforeAll(async () => {
     await browser.get('http://localhost:4200');
   });
@@ -30,7 +28,10 @@ describe('AppComponent', () => {
 
   it('should search through todos', async () => {
     await element(by.id('example-search-input')).sendKeys('sdv');
-    await browser.actions().sendKeys(protractor.Key.ENTER).perform();
+    await browser
+      .actions()
+      .sendKeys(protractor.Key.ENTER)
+      .perform();
 
     const todoCount = await element(by.className('badge-info')).getText();
     expect(todoCount).toBe('0');
